@@ -19,6 +19,7 @@ class Game():
     def __init__(self):
         port = int(input("enter a port number to run on"))
         # set up server
+        self.server = https.BaseHTTPServer(('',port),MyHander)
         # handshake
         self.boardsize = 19
         self.board = [['.' for x in range(self.boardsize)] for y in range(self.boardsize)]
@@ -48,12 +49,10 @@ class Game():
         return
 
     def check_win(self):
-        if (self._check_horizontal_win ||
-            self._check_vertical_win ||
-            self._check_diagonal_win ||
-            self._check_reverse_diagonal_win):
-            return True
-        return False
+        return (self._check_horizontal_win ||
+                self._check_vertical_win ||
+                self._check_diagonal_win ||
+                self._check_reverse_diagonal_win)
 
     def _check_horizontal_win(self):
         return False
