@@ -1,47 +1,26 @@
 import http.client as httpc
 import http.server as https
 import sys
-import argparse
-import logging
 
 def main(argv):
     """ The main entry point for the program """
-    args = parse_args(argv)
-    logger = get_logger()
-    game = Game(logger,args.port)
+    game = Game()
     game.run()
     return
 
-def parse_args(argv):
-    """ argparse setup """
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-p", "--port", default=None,
-                        help="port for the server to run on")
-    return parser.parse_args(argv)
+class MyHandler(https.BaseHTTPHandler):
+    
+    def do_POST(self):
+        return
 
-def get_logger():
-    # create logger
-    logger = logging.getLogger('five_in_a_row_game')
-    logger.setLevel(logging.DEBUG)
-    # create console handler and set level to debug
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.DEBUG)
-    # create formatter
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    # add formatter to ch
-    ch.setFormatter(formatter)
-    # add ch to logger
-    logger.addHandler(ch)
-    return logger
 
 class Game():
 
-    def __init__(self,logger,port):
-        if not port:
-            port = int(input("enter a port number to run on"))
+    def __init__(self):
+        port = int(input("enter a port number to run on"))
         # set up server
         # handshake
-        self.boardsize = 5
+        self.boardsize = 19
         self.board = [['.' for x in range(self.boardsize)] for y in range(self.boardsize)]
         self.own_moves = []
         self.opp_moves = []
