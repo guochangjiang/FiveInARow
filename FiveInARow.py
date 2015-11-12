@@ -1,7 +1,13 @@
-import http.client as httpc
-import http.server as https
+from __future__ import print_function, division
+try:
+    import http.client as httpc
+    import http.server as https
+except:
+    import httplib as httpc
+    import BaseHTTPServer as https
 import random
 import sys
+if sys.version_info[0] == 2: input = raw_input
 
 def main(argv):
     """ The main entry point for the program """
@@ -9,7 +15,7 @@ def main(argv):
     game.run()
     return
 
-class MyHandler(https.BaseHTTPHandler):
+class MyHandler(https.BaseHTTPRequestHandler):
 
     last_path = ''
 
@@ -37,18 +43,20 @@ class Game():
     
     def run(self):
         """ them main loop for the game """
-        port = int(input("enter a port number to run on"))
+        port = int(input("enter a port number to run on: "))
         # set up server
-        self.server = https.BaseHTTPServer(('',port),MyHander)
+        self.server = https.HTTPServer(('',port),MyHandler)
         print("one player must listen first, the other player will must reach out")
         is_listener = int(input("enter 1 if to be the listener, 0 to if the other player will be: "))
         if (is_listener == 1):
-            self.server.handler_request()
+            self.server.handle_request()
             if random.randint(0,1) == 1:
                 self.print_board()
                 self.send_move()
             else:
+                self.print_board()
                 self.send_you_go()
+                print("waiting for opponent")
         else:
             self.handshake(port)
         while True:
@@ -56,14 +64,16 @@ class Game():
             if MyHandler.last_path == "/youwin":
                 print("you win!")
                 break
-            self.print_board()
             if MyHandler.last_path[:5] == "/move":
                 self.process_move(MyHandler.last_path[-4:])
-                if self.check_win():
-                    print("Opponent won!")
-                    break
-            move = input("input move: ")
+            self.print_board()
+            if self.check_win():
+                print("Opponent won!")
+                self.send_you_win()
+                break
             self.send_move()
+            self.print_board()
+            print("waiting on opponent")
         return
 
     def process_move(self, move):
@@ -76,37 +86,51 @@ class Game():
         move = input("enter move: ")
         x,y = move.split(',')
         move_string = x.strip().zfill(2) + y.strip().zfill(2)
-        self.own_moves.append(int(x),int(y))
+        self.own_moves.append((int(x),int(y)))
         self.board[int(x)][int(y)] = self.own_char
-        httpc.HTTPConnection(MyHandler.opponent)
-        httpc.requset("POST", "/move/" + move_string)
+        conn = httpc.HTTPConnection(MyHandler.opponent)
+        conn.request("POST", "/move/" + move_string)
         return
 
-    def self_handshake(self, my_port):
+    def send_you_go(self):
+        conn = httpc.HTTPConnection(MyHandler.opponent)
+        conn.request("POST","/yougo")
+        return
+
+    def send_you_win(self):
+        conn = httpc.HTTPConnection(MyHandler.opponent)
+        conn.request("POST","/youwin")
+        return
+
+    def handshake(self, my_port):
         host = input("enter the other players address ")
         port = input("enter the other players port: ")
         MyHandler.opponent = host + ':' + port
-        httpc.HTTPConnection(MyHandler.opponent[0], MyHandler.opponent[1])
-        httpc.request("GET", '/'+str(my_port))
+        conn = httpc.HTTPConnection(MyHandler.opponent)
+        conn.request("GET", '/'+str(my_port))
         return
 
     def print_board(self):
         for i in range(100):
             print("")
         row_string = '   '
-        for i in range(boardsize):
-            rowstring += str(i).rjust(3)
+        for i in range(self.boardsize):
+            row_string += str(i).rjust(3)
         print(row_string)
         for i, row in enumerate(self.board):
             row_string = str(i).rjust(3)
             for c in row:
                 row_string += c.rjust(3)
+            print(row_string)
         return
 
     def check_win(self):
-        return (self._check_horizontal_win ||
-                self._check_vertical_win ||
-                self._check_diagonal_win ||
+        print(self.opp_moves)
+        if len(self.opp_moves) == 0:
+            return False
+        return (self._check_horizontal_win or
+                self._check_vertical_win or
+                self._check_diagonal_win or
                 self._check_reverse_diagonal_win)
 
     def _check_horizontal_win(self):
