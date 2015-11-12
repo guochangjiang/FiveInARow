@@ -32,6 +32,8 @@ class Game():
         self.board = [['.' for x in range(self.boardsize)] for y in range(self.boardsize)]
         self.own_moves = []
         self.opp_moves = []
+        self.own_char = 'b'
+        self.opp_char = 'w'
     
     def run(self):
         """ them main loop for the game """
@@ -57,19 +59,25 @@ class Game():
             self.print_board()
             if MyHandler.last_path[:5] == "/move":
                 self.process_move(MyHandler.last_path[-4:])
+                if self.check_win():
+                    print("Opponent won!")
+                    break
             move = input("input move: ")
             self.send_move()
         return
 
     def process_move(self, move):
         x, y = move[:2], move[2:]
-        opp_moves.append((int(x),int(y)))
+        self.opp_moves.append((int(x),int(y)))
+        self.board[int(x)][int(y)] = self.opp_char
         return
 
     def send_move(self):
         move = input("enter move: ")
         x,y = move.split(',')
         move_string = x.strip().zfill(2) + y.strip().zfill(2)
+        self.own_moves.append(int(x),int(y))
+        self.board[int(x)][int(y)] = self.own_char
         httpc.HTTPConnection(MyHandler.opponent)
         httpc.requset("POST", "/move/" + move_string)
         return
@@ -102,16 +110,32 @@ class Game():
                 self._check_reverse_diagonal_win)
 
     def _check_horizontal_win(self):
-        return False
+        for (x, y) in self.opp_moves:
+            for i in range(4):
+                if (x-(i+1), y) not in self.opp_moves:
+                    return False
+        return True
 
     def _check_vertical_win(self):
-        return False
+        for (x, y) in self.opp_moves:
+            for i in range(4):
+                if (x, y-(i+1)) not in self.opp_moves:
+                    return False
+        return True
 
     def _check_diagonal_win(self):
-        return False
+        for (x, y) in self.opp_moves:
+            for i in range(4):
+                if (x-(i+1), y-(i+1)) not in self.opp_moves:
+                    return False
+        return True
 
     def _check_reverse_diagonal_win(self):
-        return False
+        for (x, y) in self.opp_moves:
+            for i in range(4):
+                if (x-(i+1), y+(i+1)) not in self.opp_moves:
+                    return False
+        return True
 
 if __name__ == "__main__":
     main(sys.argv[1:])
