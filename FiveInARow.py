@@ -128,10 +128,10 @@ class Game():
         print(self.opp_moves)
         if len(self.opp_moves) == 0:
             return False
-        return (self._check_horizontal_win or
-                self._check_vertical_win or
-                self._check_diagonal_win or
-                self._check_reverse_diagonal_win)
+        return (self._check_horizontal_win() or
+                self._check_vertical_win() or
+                self._check_diagonal_win() or
+                self._check_reverse_diagonal_win())
 
     def _check_horizontal_win(self):
         for (x, y) in self.opp_moves:
