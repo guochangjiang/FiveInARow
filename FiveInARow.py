@@ -86,8 +86,9 @@ class Game():
         while True:
             move = input("enter move: ")
             x,y = move.split(',')
-            if (x < 19 and x >= 0 and y < 19 and y >= 0):
-                if (x,y) not in (self.own_moves + self.opp_moves):
+            if (int(x) < 19 and int(x) >= 0 and
+                int(y) < 19 and int(y) >= 0):
+                if (int(x),int(y)) not in (self.own_moves + self.opp_moves):
                     break
                 else:
                     print("that move has already been made")
