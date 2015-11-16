@@ -83,8 +83,16 @@ class Game():
         return
 
     def send_move(self):
-        move = input("enter move: ")
-        x,y = move.split(',')
+        while True:
+            move = input("enter move: ")
+            x,y = move.split(',')
+            if (x < 19 and x >= 0 and y < 19 and y >= 0):
+                if (x,y) not in (self.own_moves + self.opp_moves):
+                    break
+                else:
+                    print("that move has already been made")
+            else:
+                print("invalid move")
         move_string = x.strip().zfill(2) + y.strip().zfill(2)
         self.own_moves.append((int(x),int(y)))
         self.board[int(x)][int(y)] = self.own_char
