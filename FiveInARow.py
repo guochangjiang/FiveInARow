@@ -144,31 +144,39 @@ class Game():
 
     def _check_horizontal_win(self):
         for (x, y) in self.opp_moves:
-            for i in range(4):
-                if (x-(i+1), y) not in self.opp_moves:
-                    return False
-        return True
+            if (((x+1),y) in self.opp_moves and
+                ((x+2),y) in self.opp_moves and
+                ((x+3),y) in self.opp_moves and
+                ((x+4),y) in self.opp_moves):
+                return True
+        return False
 
     def _check_vertical_win(self):
         for (x, y) in self.opp_moves:
-            for i in range(4):
-                if (x, y-(i+1)) not in self.opp_moves:
-                    return False
-        return True
+            if ((x,(y+1)) in self.opp_moves and
+                (x,(y+2)) in self.opp_moves and
+                (x,(y+3)) in self.opp_moves and
+                (x,(y+4)) in self.opp_moves):
+                return True
+        return False
 
     def _check_diagonal_win(self):
         for (x, y) in self.opp_moves:
-            for i in range(4):
-                if (x-(i+1), y-(i+1)) not in self.opp_moves:
-                    return False
-        return True
+            if (((x+1),(y+1)) in self.opp_moves and
+                ((x+2),(y+2)) in self.opp_moves and
+                ((x+3),(y+3)) in self.opp_moves and
+                ((x+4),(y+4)) in self.opp_moves):
+                return True
+        return False
 
     def _check_reverse_diagonal_win(self):
         for (x, y) in self.opp_moves:
-            for i in range(4):
-                if (x-(i+1), y+(i+1)) not in self.opp_moves:
-                    return False
-        return True
+            if (((x+1),(y-1)) in self.opp_moves and
+                ((x+2),(y-2)) in self.opp_moves and
+                ((x+3),(y-3)) in self.opp_moves and
+                ((x+4),(y-4)) in self.opp_moves):
+                return True
+        return False
 
 if __name__ == "__main__":
     main(sys.argv[1:])
