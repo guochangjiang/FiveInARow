@@ -95,18 +95,17 @@ class Game():
     def send_move(self):
         while True:
             try:
-                move = input("enter move: ")
-                x,y = move.split(',')
+                x,y = input("enter move: ").split(',')
+                if (int(x) < 19 and int(x) >= 0 and
+                    int(y) < 19 and int(y) >= 0):
+                    if (int(x),int(y)) not in (self.own_moves + self.opp_moves):
+                        break
+                    else:
+                        print("that move has already been made")
+                else:
+                    print("invalid move")
             except:
                 print("invalid moves, moves must be in the format of two int's with a , delimiter")
-            if (int(x) < 19 and int(x) >= 0 and
-                int(y) < 19 and int(y) >= 0):
-                if (int(x),int(y)) not in (self.own_moves + self.opp_moves):
-                    break
-                else:
-                    print("that move has already been made")
-            else:
-                print("invalid move")
         move_string = x.strip().zfill(2) + y.strip().zfill(2)
         self.own_moves.append((int(x),int(y)))
         self.board[int(x)][int(y)] = self.own_char
