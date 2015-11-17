@@ -38,8 +38,8 @@ class Game():
         self.board = [['.' for x in range(self.boardsize)] for y in range(self.boardsize)]
         self.own_moves = []
         self.opp_moves = []
-        self.own_char = 'b'
-        self.opp_char = 'w'
+        self.own_char = ''
+        self.opp_char = ''
     
     def run(self):
         """ them main loop for the game """
@@ -51,9 +51,13 @@ class Game():
         if (is_listener == 1):
             self.server.handle_request()
             if random.randint(0,1) == 1:
+                self.own_char = 'b'
+                self.opp_char = 'w'
                 self.print_board()
                 self.send_move()
             else:
+                self.own_char = 'w'
+                self.opp_char = 'b'
                 self.print_board()
                 self.send_you_go()
                 print("waiting for opponent")
@@ -64,7 +68,13 @@ class Game():
             if MyHandler.last_path == "/youwin":
                 print("you win!")
                 break
+            if MyHandler.last_path == "/yougo":
+                self.own_char = 'b'
+                self.opp_char = 'w'
             if MyHandler.last_path[:5] == "/move":
+                if self.own_char == '':
+                    self.own_char = 'w'
+                    self.opp_char = 'b'
                 self.process_move(MyHandler.last_path[-4:])
             self.print_board()
             if self.check_win():
@@ -84,8 +94,11 @@ class Game():
 
     def send_move(self):
         while True:
-            move = input("enter move: ")
-            x,y = move.split(',')
+            try:
+                move = input("enter move: ")
+                x,y = move.split(',')
+            except:
+                print("invalid moves, moves must be in the format of two int's with a , delimiter")
             if (int(x) < 19 and int(x) >= 0 and
                 int(y) < 19 and int(y) >= 0):
                 if (int(x),int(y)) not in (self.own_moves + self.opp_moves):
